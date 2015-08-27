@@ -19,5 +19,6 @@ get "/alt_profile" do
 end
 
 post "/profile" do
+  @name = params[:user_name]
   erb :profile
 end
