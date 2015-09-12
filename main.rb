@@ -5,20 +5,104 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',
                            :secret => 'my_secret'
 
+helpers do
+  def calculate_total(hand) # accepts a nested array ie. [[x,y],[x,y] ...]
+    hand_values = hand.map { |element| element[1] }
 
-get "/welcome" do
-  erb :welcome
+    total = 0
+    hand_values.each do |value|
+      if value == "A"
+        total += 11
+      else
+        total += value.to_i == 0 ? 10 : value.to_i
+      end
+    end
+
+    # adjust for aces
+    hand_values.select { |value| value == "A" }.count.times do
+      total -= 10 if total > 21
+    end
+
+    total
+  end
+
+  def display_card(card) # ["suit", "value"]
+    suit = case card[0]
+      when "C" then "clubs"
+      when "D" then "diamonds"
+      when "S" then "spades"
+      when "H" then "hearts"
+    end
+
+    value = case card[1]
+      when "A" then "ace"
+      when "J" then "jack"
+      when "Q" then "queen"
+      when "K" then "king"
+      else card[1]
+    end
+
+    "<img src='/images/cards/#{suit}_#{value}.jpg' class='card'>"
+  end
 end
 
-get "/redirect" do
-  redirect "/welcome"
+before do
+  @display_stay_or_bust = true
 end
 
-get "/alt_profile" do
-  erb :"alt_views/alt_profile"
+get "/" do
+  if session[:player_name]
+    redirect "/game"
+  else
+    redirect "/new_player"
+  end
 end
 
-post "/profile" do
-  @name = params[:user_name]
-  erb :profile
+get "/new_player" do
+  erb :new_player
+end
+
+post "/new_player" do
+  session[:new_player] = params[:new_player]
+  redirect "/game"
+end
+
+get "/game" do
+
+  # initialize the deck
+  suits = %w(H D S C)
+  face_values = %w(2 3 4 5 6 7 8 9 10 J Q K A)
+  session[:deck] = suits.product(face_values).shuffle!
+
+  # initialize deal and player hand
+  session[:player_hand] = []
+  session[:dealer_hand] = []
+  session[:player_hand] << session[:deck].pop
+  session[:dealer_hand] << session[:deck].pop
+  session[:player_hand] << session[:deck].pop
+  session[:dealer_hand] << session[:deck].pop
+
+  # show deck
+  erb :game
+end
+
+post '/game/player/hit' do
+  session[:player_hand] << session[:deck].pop
+  @player_hand_value = calculate_total(session[:player_hand])
+
+  if @player_hand_value > 21
+    @error = "Sorry, you busted!"
+    @display_stay_or_bust = false
+  elsif @player_hand_value == 21
+    @success = "Congratulations, you've got 21!"
+    @display_stay_or_bust = false
+  end
+  
+  erb :game
+end
+
+post '/game/player/stay' do
+  @success = "You chose you stay!"
+  @display_stay_or_bust = false
+  erb :game
 end

@@ -1,0 +1,31 @@
+<h3>Cards held by all players</h3>
+</br>
+
+<h4>Dealers cards...</h4>
+
+<div class='well'>
+  <% session[:dealer_hand].each do |card| %>
+    <%= display_card(card) %>
+  <% end %>
+</div>
+
+<h4>Your cards...</h4>
+
+<div class='well'>
+  <% session[:player_hand].each do |card| %>
+    <%= display_card(card) %>
+  <% end %>
+</div>
+
+<h4>Your hand value is: <%= calculate_total(session[:player_hand]) %></h4>
+
+</br>
+
+<% if @display_stay_or_bust %>
+  <form action='/game/player/hit' method='post' class='hitstaybutton'>
+    <input type='submit' class='btn btn-success' value='Hit' />
+  </form>
+  <form action='/game/player/stay' method='post' class='staystaybutton'>
+    <input type='submit' class='btn btn-inverse' value='Stay' />
+  </form>
+<% end %>
