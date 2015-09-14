@@ -44,6 +44,7 @@ helpers do
 
     "<img src='/images/cards/#{suit}_#{value}.jpg' class='card'>"
   end
+
 end
 
 before do
@@ -63,8 +64,14 @@ get "/new_player" do
 end
 
 post "/new_player" do
-  session[:new_player] = params[:new_player]
-  redirect "/game"
+  session[:player_name] = params[:player_name]
+
+  if session[:player_name].size == 0
+    @error = "Please enter a valid name!"
+    erb :new_player
+  else
+    redirect "/game"
+  end
 end
 
 get "/game" do
@@ -97,12 +104,39 @@ post '/game/player/hit' do
     @success = "Congratulations, you've got 21!"
     @display_stay_or_bust = false
   end
-  
+
   erb :game
 end
 
 post '/game/player/stay' do
-  @success = "You chose you stay!"
+  redirect '/game/dealer'
+end
+
+get '/game/dealer' do
   @display_stay_or_bust = false
+  player_hand = calculate_total(session[:player_hand])
+  dealer_hand = calculate_total(session[:dealer_hand])
+
+  if dealer_hand == 21
+    @error = "Sorry, Dealer hits BlackJack... You lose!"
+  elsif dealer_hand > 21
+    @success = "Dealer busts... You win!"
+  elsif dealer_hand < 17
+    @display_dealer_hit = true
+  else
+    if dealer_hand > player_hand
+      @error = "Dealer has a better hand... You lose!"
+    elsif dealer_hand < player_hand
+      @success = "Your hand beats the Dealer... you win!"
+    else
+      @success = "Its a tie!"
+    end
+  end
+
   erb :game
+end
+
+post '/game/dealer/hit' do
+  session[:dealer_hand] << session[:deck].pop
+  redirect '/game/dealer'
 end

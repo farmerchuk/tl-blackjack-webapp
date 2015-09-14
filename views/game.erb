@@ -1,23 +1,30 @@
-<h3>Cards held by all players</h3>
+<h3><%= session[:player_name] %>, you're playing BlackJack!</h3>
 </br>
 
-<h4>Dealers cards...</h4>
-
 <div class='well'>
+  <h4>DEALER'S CARDS...</h4>
+  </br>
   <% session[:dealer_hand].each do |card| %>
     <%= display_card(card) %>
   <% end %>
-</div>
-
-<h4>Your cards...</h4>
-
-<div class='well'>
-  <% session[:player_hand].each do |card| %>
-    <%= display_card(card) %>
+  <h4>Dealer hand value is: <%= calculate_total(session[:dealer_hand]) %></h4>
+  <% if @display_dealer_hit %>
+    <p>
+      <form action='/game/dealer/hit' method='post'>
+        <input type='submit' class='btn btn-success' value="Click to see the dealer's next card...">
+      </form>
+    </p>
   <% end %>
 </div>
 
-<h4>Your hand value is: <%= calculate_total(session[:player_hand]) %></h4>
+<div class='well'>
+  <h4>YOUR CARDS...</h4>
+  </br>
+  <% session[:player_hand].each do |card| %>
+    <%= display_card(card) %>
+  <% end %>
+  <h4>Your hand value is: <%= calculate_total(session[:player_hand]) %></h4>
+</div>
 
 </br>
 
