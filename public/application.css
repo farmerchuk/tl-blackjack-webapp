@@ -1,8 +1,21 @@
-form.hitstaybutton {
+form.decision-buttons {
   float: left;
   margin-right: 10px;
 }
 
 img.card {
   margin: 0px 10px 10px 0px;
+}
+
+#new-game-button {
+  padding: 10px 15px 10px 0px;
+}
+
+.title-img {
+  margin: 20px 0px 40px;
+}
+
+#player-form {
+  margin: auto;
+  width: 50%;
 }

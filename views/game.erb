@@ -1,13 +1,31 @@
-<h3><%= session[:player_name] %>, you're playing BlackJack!</h3>
+<% if @play_again %>
+  <form action='/game' method="get" class='decision-buttons'>
+    <input type='submit' class='btn btn-success' value='Play Again!'>
+  </form>
+  <form action='/game_over' method="get" class='decision-buttons'>
+    <input type='submit' class='btn btn-danger' value="Quit, I'm Broke!">
+  </form>
+<% end %>
+
+<div style='clear: both;'></div>
+
 </br>
 
 <div class='well'>
   <h4>DEALER'S CARDS...</h4>
   </br>
-  <% session[:dealer_hand].each do |card| %>
-    <%= display_card(card) %>
+  <% session[:dealer_hand].each_with_index do |card, index| %>
+    <% if session[:turn] == :player && index == 0 %>
+      <img src='/images/cards/cover.jpg' class='card'>
+    <% else %>
+      <%= display_card(card) %>
+    <% end %>
   <% end %>
-  <h4>Dealer hand value is: <%= calculate_total(session[:dealer_hand]) %></h4>
+
+  <% if session[:turn] == :dealer %>
+    <h4>Dealer hand value is: <%= calculate_total(session[:dealer_hand]) %></h4>
+  <% end %>
+
   <% if @display_dealer_hit %>
     <p>
       <form action='/game/dealer/hit' method='post'>
@@ -29,10 +47,10 @@
 </br>
 
 <% if @display_stay_or_bust %>
-  <form action='/game/player/hit' method='post' class='hitstaybutton'>
+  <form action='/game/player/hit' method='post' class='decision-buttons'>
     <input type='submit' class='btn btn-success' value='Hit' />
   </form>
-  <form action='/game/player/stay' method='post' class='staystaybutton'>
+  <form action='/game/player/stay' method='post' class='decision-buttons'>
     <input type='submit' class='btn btn-inverse' value='Stay' />
   </form>
 <% end %>

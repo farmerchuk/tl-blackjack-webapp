@@ -45,6 +45,27 @@ helpers do
     "<img src='/images/cards/#{suit}_#{value}.jpg' class='card'>"
   end
 
+  def player_loses(msg)
+    @play_again = true
+    @error = "Sorry, you lost! #{msg}"
+    @display_stay_or_bust = false
+    @play_again = true
+  end
+
+  def player_wins(msg)
+    @play_again = true
+    @success = "Congratulations you won! #{msg}"
+    @display_stay_or_bust = false
+    @play_again = true
+  end
+
+  def player_ties
+    @play_again = true
+    @success = "It's a tie!"
+    @display_stay_or_bust = false
+    @play_again = true
+  end
+
 end
 
 before do
@@ -80,6 +101,7 @@ get "/game" do
   suits = %w(H D S C)
   face_values = %w(2 3 4 5 6 7 8 9 10 J Q K A)
   session[:deck] = suits.product(face_values).shuffle!
+  session[:turn] = :player
 
   # initialize deal and player hand
   session[:player_hand] = []
@@ -98,11 +120,9 @@ post '/game/player/hit' do
   @player_hand_value = calculate_total(session[:player_hand])
 
   if @player_hand_value > 21
-    @error = "Sorry, you busted!"
-    @display_stay_or_bust = false
+    player_loses "You busted!"
   elsif @player_hand_value == 21
-    @success = "Congratulations, you've got 21!"
-    @display_stay_or_bust = false
+    player_wins "You've got BlackJack!"
   end
 
   erb :game
@@ -113,23 +133,24 @@ post '/game/player/stay' do
 end
 
 get '/game/dealer' do
+  session[:turn] = :dealer
   @display_stay_or_bust = false
   player_hand = calculate_total(session[:player_hand])
   dealer_hand = calculate_total(session[:dealer_hand])
 
   if dealer_hand == 21
-    @error = "Sorry, Dealer hits BlackJack... You lose!"
+    player_loses "Dealer has BlackJack!"
   elsif dealer_hand > 21
-    @success = "Dealer busts... You win!"
+    player_wins "Dealer busts!"
   elsif dealer_hand < 17
     @display_dealer_hit = true
   else
     if dealer_hand > player_hand
-      @error = "Dealer has a better hand... You lose!"
+      player_loses "Dealer has the best hand!"
     elsif dealer_hand < player_hand
-      @success = "Your hand beats the Dealer... you win!"
+      player_wins "You have the best hand!"
     else
-      @success = "Its a tie!"
+      player_ties
     end
   end
 
@@ -139,4 +160,8 @@ end
 post '/game/dealer/hit' do
   session[:dealer_hand] << session[:deck].pop
   redirect '/game/dealer'
+end
+
+get '/game_over' do
+  erb :game_over
 end
