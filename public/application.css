@@ -12,10 +12,18 @@ img.card {
 }
 
 .title-img {
-  margin: 20px 0px 40px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+#game-over-msg {
+  text-align: center;
 }
 
 #player-form {
-  margin: auto;
+  margin-left: 38%;
   width: 50%;
 }
