@@ -47,34 +47,46 @@ helpers do
 
   def player_loses(msg)
     @play_again = true
-    @error = "Sorry, you lost! #{msg}"
+    @error = "Sorry, you lost your $#{session[:player_bet]}!  #{msg}"
+    session[:player_pool] -= session[:player_bet]
     @display_stay_or_bust = false
     @play_again = true
+    @display_betting_details = false
+
+    if session[:player_pool] < 1
+      @game_over = true
+      @play_again = false
+    end
   end
 
   def player_wins(msg)
     @play_again = true
-    @success = "Congratulations you won! #{msg}"
+    @success = "Congratulations you won $#{session[:player_bet]}!  #{msg}"
+    session[:player_pool] += session[:player_bet]
     @display_stay_or_bust = false
     @play_again = true
+    @display_betting_details = false
   end
 
   def player_ties
     @play_again = true
-    @success = "It's a tie!"
+    @success = "It's a tie! You didn't win or lose any money..."
     @display_stay_or_bust = false
     @play_again = true
+    @display_betting_details = false
   end
 
 end
 
 before do
   @display_stay_or_bust = true
+  @display_betting_details = true
 end
 
 get "/" do
+  session[:player_pool] = 500
   if session[:player_name]
-    redirect "/game"
+    redirect "/game/bet"
   else
     redirect "/new_player"
   end
@@ -91,11 +103,26 @@ post "/new_player" do
     @error = "Please enter a valid name!"
     erb :new_player
   else
-    redirect "/game"
+    redirect "/game/bet"
   end
 end
 
-get "/game" do
+get '/game/bet' do
+  erb :bet
+end
+
+post '/game/bet' do
+  session[:player_bet] = params[:player_bet].to_i
+
+  if session[:player_bet] > session[:player_pool] || session[:player_bet] < 1
+    @error = "Please enter a valid bet!"
+    erb :bet
+  else
+    redirect '/game'
+  end
+end
+
+get '/game' do
 
   # initialize the deck
   suits = %w(H D S C)
@@ -110,6 +137,12 @@ get "/game" do
   session[:dealer_hand] << session[:deck].pop
   session[:player_hand] << session[:deck].pop
   session[:dealer_hand] << session[:deck].pop
+
+  @player_hand_value = calculate_total(session[:player_hand])
+
+  if @player_hand_value == 21
+    player_wins "You've got BlackJack!"
+  end
 
   # show deck
   erb :game

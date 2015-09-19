@@ -1,0 +1,12 @@
+<div>
+  <div id='bet-form'>
+    <h3>How much would you like to bet?</h3>
+    </br>
+    <p>You currently have $<%= session[:player_pool] %></p>
+    <form action='/game/bet' method='post'>
+      <input type='text' name='player_bet' />
+      <br/>
+      <input type='submit' class='btn' />
+    </form>
+  <div>
+<div>

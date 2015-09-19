@@ -1,9 +1,15 @@
 <% if @play_again %>
-  <form action='/game' method="get" class='decision-buttons'>
+  <form action='/game/bet' method="get" class='decision-buttons'>
     <input type='submit' class='btn btn-success' value='Play Again!'>
   </form>
   <form action='/game_over' method="get" class='decision-buttons'>
-    <input type='submit' class='btn btn-danger' value="Quit, I'm Broke!">
+    <input type='submit' class='btn btn-danger' value="I Quit!">
+  </form>
+<% end %>
+
+<% if @game_over %>
+  <form action='/' method="get" class='decision-buttons'>
+    <input type='submit' class='btn btn-success' value='Start New Game'>
   </form>
 <% end %>
 
@@ -42,6 +48,9 @@
     <%= display_card(card) %>
   <% end %>
   <h4>Your hand value is: <%= calculate_total(session[:player_hand]) %></h4>
+  <% if @display_betting_details %>
+    <p class='dim'>You are betting $<%= session[:player_bet] %> out of your total pool of $<%= session[:player_pool] %></p>
+  <% end %>
 </div>
 
 </br>
