@@ -50,7 +50,6 @@ helpers do
     @error = "Sorry, you lost your $#{session[:player_bet]}!  #{msg}"
     session[:player_pool] -= session[:player_bet]
     @display_stay_or_bust = false
-    @play_again = true
     @display_betting_details = false
 
     if session[:player_pool] < 1
@@ -64,7 +63,6 @@ helpers do
     @success = "Congratulations you won $#{session[:player_bet]}!  #{msg}"
     session[:player_pool] += session[:player_bet]
     @display_stay_or_bust = false
-    @play_again = true
     @display_betting_details = false
   end
 
@@ -72,7 +70,6 @@ helpers do
     @play_again = true
     @success = "It's a tie! You didn't win or lose any money..."
     @display_stay_or_bust = false
-    @play_again = true
     @display_betting_details = false
   end
 
@@ -84,7 +81,6 @@ before do
 end
 
 get "/" do
-  session[:player_pool] = 500
   if session[:player_name]
     redirect "/game/bet"
   else
@@ -93,6 +89,7 @@ get "/" do
 end
 
 get "/new_player" do
+  session[:player_pool] = 500
   erb :new_player
 end
 
@@ -114,7 +111,8 @@ end
 post '/game/bet' do
   session[:player_bet] = params[:player_bet].to_i
 
-  if session[:player_bet] > session[:player_pool] || session[:player_bet] < 1
+  if session[:player_bet] > session[:player_pool] || session[:player_bet] < 1 ||
+      session[:player_bet] == nil
     @error = "Please enter a valid bet!"
     erb :bet
   else
@@ -158,11 +156,7 @@ post '/game/player/hit' do
     player_wins "You've got BlackJack!"
   end
 
-  erb :game
-end
-
-post '/game/player/stay' do
-  redirect '/game/dealer'
+  erb :game, layout: false
 end
 
 get '/game/dealer' do
@@ -187,7 +181,7 @@ get '/game/dealer' do
     end
   end
 
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/dealer/hit' do

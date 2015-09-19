@@ -1,65 +1,76 @@
-<% if @play_again %>
-  <form action='/game/bet' method="get" class='decision-buttons'>
-    <input type='submit' class='btn btn-success' value='Play Again!'>
-  </form>
-  <form action='/game_over' method="get" class='decision-buttons'>
-    <input type='submit' class='btn btn-danger' value="I Quit!">
-  </form>
-<% end %>
+<div id='game-panel'>
 
-<% if @game_over %>
-  <form action='/' method="get" class='decision-buttons'>
-    <input type='submit' class='btn btn-success' value='Start New Game'>
-  </form>
-<% end %>
+  <% if @error %>
+    <p><div class="alert alert-error"><%= @error %></div></p>
+  <% end %>
+  <% if @success %>
+    <p><div class="alert alert-success"><%= @success %></div></p>
+  <% end %>
 
-<div style='clear: both;'></div>
+  <% if @play_again %>
+    <form action='/game/bet' method="get" class='decision-buttons'>
+      <input type='submit' class='btn btn-success' value='Play Again!'>
+    </form>
+    <form action='/game_over' method="get" class='decision-buttons'>
+      <input type='submit' class='btn btn-danger' value="I Quit!">
+    </form>
+  <% end %>
 
-</br>
+  <% if @game_over %>
+    <form action='/new_player' method="get" class='decision-buttons'>
+      <input type='submit' class='btn btn-success' value='Start New Game'>
+    </form>
+  <% end %>
 
-<div class='well'>
-  <h4>DEALER'S CARDS...</h4>
+  <div style='clear: both;'></div>
+
   </br>
-  <% session[:dealer_hand].each_with_index do |card, index| %>
-    <% if session[:turn] == :player && index == 0 %>
-      <img src='/images/cards/cover.jpg' class='card'>
-    <% else %>
+
+  <div class='well'>
+    <h4>DEALER'S CARDS...</h4>
+    </br>
+    <% session[:dealer_hand].each_with_index do |card, index| %>
+      <% if session[:turn] == :player && index == 0 %>
+        <img src='/images/cards/cover.jpg' class='card'>
+      <% else %>
+        <%= display_card(card) %>
+      <% end %>
+    <% end %>
+
+    <% if session[:turn] == :dealer %>
+      <h4>Dealer hand value is: <%= calculate_total(session[:dealer_hand]) %></h4>
+    <% end %>
+
+    <% if @display_dealer_hit %>
+      <p>
+        <form action='/game/dealer/hit' method='post'>
+          <input type='submit' class='btn btn-success' value="Click to see the dealer's next card...">
+        </form>
+      </p>
+    <% end %>
+  </div>
+
+  <div class='well'>
+    <h4>YOUR CARDS...</h4>
+    </br>
+    <% session[:player_hand].each do |card| %>
       <%= display_card(card) %>
     <% end %>
-  <% end %>
+    <h4>Your hand value is: <%= calculate_total(session[:player_hand]) %></h4>
+    <% if @display_betting_details %>
+      <p class='dim'>You are betting $<%= session[:player_bet] %> out of your total pool of $<%= session[:player_pool] %></p>
+    <% end %>
+  </div>
 
-  <% if session[:turn] == :dealer %>
-    <h4>Dealer hand value is: <%= calculate_total(session[:dealer_hand]) %></h4>
-  <% end %>
-
-  <% if @display_dealer_hit %>
-    <p>
-      <form action='/game/dealer/hit' method='post'>
-        <input type='submit' class='btn btn-success' value="Click to see the dealer's next card...">
-      </form>
-    </p>
-  <% end %>
-</div>
-
-<div class='well'>
-  <h4>YOUR CARDS...</h4>
   </br>
-  <% session[:player_hand].each do |card| %>
-    <%= display_card(card) %>
-  <% end %>
-  <h4>Your hand value is: <%= calculate_total(session[:player_hand]) %></h4>
-  <% if @display_betting_details %>
-    <p class='dim'>You are betting $<%= session[:player_bet] %> out of your total pool of $<%= session[:player_pool] %></p>
-  <% end %>
-</div>
 
-</br>
+  <% if @display_stay_or_bust %>
+    <form action='/game/player/hit' method='post' class='decision-buttons'>
+      <input type='submit' class='btn btn-success' value='Hit' />
+    </form>
+    <form action='/game/player/stay' method='post' class='decision-buttons'>
+      <input type='submit' class='btn btn-inverse' value='Stay' />
+    </form>
+  <% end %>
 
-<% if @display_stay_or_bust %>
-  <form action='/game/player/hit' method='post' class='decision-buttons'>
-    <input type='submit' class='btn btn-success' value='Hit' />
-  </form>
-  <form action='/game/player/stay' method='post' class='decision-buttons'>
-    <input type='submit' class='btn btn-inverse' value='Stay' />
-  </form>
-<% end %>
+<div>
