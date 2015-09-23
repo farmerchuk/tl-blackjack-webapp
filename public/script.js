@@ -9,7 +9,6 @@ $(document).ready(function() {
 
 });
 
-
 function player_hit() {
   $(document).on('click', 'form input[value="Hit"]', function() {
     $.ajax({
@@ -20,7 +19,7 @@ function player_hit() {
     });
     return false;
   });
-}
+};
 
 function player_stand() {
   $(document).on('click', 'form input[value="Stay"]', function() {
@@ -32,7 +31,7 @@ function player_stand() {
     });
     return false;
   });
-}
+};
 
 function dealer_hit() {
   $(document).on('click', 'form input[value="Click to see the dealer\'s next card..."]', function() {
@@ -44,4 +43,4 @@ function dealer_hit() {
     });
     return false;
   });
-}
+};

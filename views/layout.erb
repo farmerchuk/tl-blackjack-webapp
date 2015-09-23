@@ -23,11 +23,10 @@
       <% if @error %>
         <p><div class="alert alert-error"><%= @error %></div></p>
       <% end %>
-      <% if @success %>
-        <p><div class="alert alert-success"><%= @success %></div></p>
-      <% end %>
-      
+
+
       <%= yield %>
+
     </div>
 
   </body>

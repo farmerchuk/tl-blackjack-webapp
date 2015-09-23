@@ -6,6 +6,13 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :secret => 'my_secret'
 
 helpers do
+  def build_deck
+    suits = %w(H D S C)
+    face_values = %w(2 3 4 5 6 7 8 9 10 J Q K A)
+    session[:deck] = suits.product(face_values).shuffle!
+  end
+
+
   def calculate_total(hand) # accepts a nested array ie. [[x,y],[x,y] ...]
     hand_values = hand.map { |element| element[1] }
 
@@ -56,6 +63,7 @@ helpers do
       @game_over = true
       @play_again = false
     end
+    build_deck
   end
 
   def player_wins(msg)
@@ -64,6 +72,7 @@ helpers do
     session[:player_pool] += session[:player_bet]
     @display_stay_or_bust = false
     @display_betting_details = false
+    build_deck
   end
 
   def player_ties
@@ -71,6 +80,7 @@ helpers do
     @success = "It's a tie! You didn't win or lose any money..."
     @display_stay_or_bust = false
     @display_betting_details = false
+    build_deck
   end
 
 end
@@ -123,9 +133,7 @@ end
 get '/game' do
 
   # initialize the deck
-  suits = %w(H D S C)
-  face_values = %w(2 3 4 5 6 7 8 9 10 J Q K A)
-  session[:deck] = suits.product(face_values).shuffle!
+  build_deck
   session[:turn] = :player
 
   # initialize deal and player hand
@@ -142,7 +150,6 @@ get '/game' do
     player_wins "You've got BlackJack!"
   end
 
-  # show deck
   erb :game
 end
 
